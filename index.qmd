@@ -1,0 +1,26 @@
+---
+sidebar: false
+toc: false
+page-layout: full
+---
+
+
+# Willkommen zu AlgoDat Docs
+
+Dies ist ein Projekt von Maximilian Hoelper, Wirtschaftsinformatikstudent der Universität Mannheim.
+
+## Features:
+- Erklärung der Algorithmen
+- Simulatoren mit eigener Eingabe
+- Graphische Darstellungen
+- Laufzeitberechnungen
+
+
+### Ausprobieren. Visualisieren. Verstehen.
+
+Die Docs sind ein Nachschlagewerk mit Simulator der Algorithmen des Inhaltes der Vorlesung Algorithmen und Datenstrukturen an der Universität Mannheim.
+
+## Algorithmen
+<a href="#" onclick="document.location='algorithmen.html';return false;" >
+    <img src="images/algorithmen.jpeg" alt="algo" style="height: 150px; width: 150px"/>
+</a>

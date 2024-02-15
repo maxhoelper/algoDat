@@ -1,0 +1,26 @@
+---
+Title: Algorithmen
+---
+
+
+# Algorithmen
+
+
+### Sortieralgorithmen
+- InsertionSort
+- Merge Sort
+- Heapsort
+- [Quicksort](quicksort.html)
+- CountingSort
+- RadixSort
+- Entscheidungsbäume
+
+### Minimale-Spannbäume (MST)
+- [Kruskal](kruskal.html)
+- Prim
+
+### Kürzeste Wege
+- Bellman-Ford
+- [Dijkstra](dijkstra.html)
+
+

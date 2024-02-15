@@ -1,0 +1,85 @@
+---
+title: "Quicksort"
+author: "Maximilian Hoelper"
+page-layout: full
+toc: true
+---
+## Einleitung
+
+
+
+## Zusammenfassende Funktionsweise
+
+**1. Sortierung der Kanten:** Zunächst werden alle Kanten des Graphen nach ihren Gewichten in aufsteigender Reihenfolge sortiert. Diese Sortierung ist der erste Schritt, um sicherzustellen, dass die Kanten mit dem geringsten Gewicht bevorzugt in den Spannbaum aufgenommen werden.
+
+**2. Initialisierung:** Ein Wald wird erstellt, indem jeder Knoten des Graphen als ein separater Baum betrachtet wird. An diesem Punkt besteht der Wald aus so vielen Bäumen, wie es Knoten im Graphen gibt, und der Ziel-Spannbaum ist noch leer.
+
+**3. Auswahl der Kanten:** Die sortierten Kanten werden der Reihe nach durchgegangen. Für jede Kante wird überprüft, ob ihre Aufnahme in den Spannbaum einen Zyklus erzeugen würde. Dies wird typischerweise mit einer Union-Find-Datenstruktur überprüft, die effizient verwalten kann, welche Knoten bereits miteinander verbunden sind.
+
+**4. Aufnahme der Kanten:** Wenn die Aufnahme einer Kante keinen Zyklus im Wald erzeugt, wird sie in den Spannbaum aufgenommen. Dies bedeutet, dass die beiden durch die Kante verbundenen Knoten (und alle Knoten, die bereits mit diesen Knoten verbunden sind) nun zu einem einzigen Baum zusammengefasst werden.
+
+**5. Wiederholung:** Schritte 3 und 4 werden wiederholt, bis alle Kanten geprüft wurden oder bis der Spannbaum (n-1) Kanten enthält, wobei n die Anzahl der Knoten im Graphen ist. Da ein Spannbaum genau (n-1) Kanten haben muss, um alle n Knoten ohne Zyklen zu verbinden, kann der Algorithmus beendet werden, sobald diese Bedingung erfüllt ist.
+
+**6. Ergebnis:** Am Ende liefert der Algorithmus einen minimalen Spannbaum des ursprünglichen Graphen, der alle Knoten mit der minimal möglichen Gesamtsumme der Kanten gewichte verbindet.
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.js"
+        integrity="sha512-EKW5YvKU3hpyyOcN6jQnAxO/L8gts+YdYV6Yymtl8pk9YlYFtqJgihORuRoBXK8/cOIlappdU6Ms8KdK6yBCgA=="
+        crossorigin="anonymous" referrerpolicy="no-referrer">
+</script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pseudocode@2.4.1/build/pseudocode.min.css">
+<script src="https://cdn.jsdelivr.net/npm/pseudocode@2.4.1/build/pseudocode.min.js">
+</script>
+
+## Pseudocode
+
+<pre id="quicksort" class="pseudocode">
+    \begin{algorithm}
+    \caption{Quicksort}
+    \begin{algorithmic}
+    \PROCEDURE{Quicksort}{$A, p, r$}
+        \IF{$p < r$}
+            \STATE $q = $ \CALL{Partition}{$A, p, r$}
+            \STATE \CALL{Quicksort}{$A, p, q - 1$}
+            \STATE \CALL{Quicksort}{$A, q + 1, r$}
+        \ENDIF
+    \ENDPROCEDURE
+    \PROCEDURE{Partition}{$A, p, r$}
+        \STATE $x = A[r]$
+        \STATE $i = p - 1$
+        \FOR{$j = p$ \TO $r - 1$}
+            \IF{$A[j] < x$}
+                \STATE $i = i + 1$
+                \STATE exchange
+                $A[i]$ with $A[j]$
+            \ENDIF
+            \STATE exchange $A[i]$ with $A[r]$
+        \ENDFOR
+    \ENDPROCEDURE
+    \end{algorithmic}
+    \end{algorithm}
+</pre>
+
+## Dateneingabe
+
+Erstelle einen Graphen, in vorgegebenem Format. Hierbei ist **A** immer der Startpunkt.
+
+Achte auf die vorgegebene Syntax.
+
+<form id="myForm">
+    <textarea id="dataInput" name="w3review" rows="4" cols="50">
+"A": {"B": 1, "C": 4},
+"B": {"C": 2, "D": 5},
+"C": {"D": 1},
+"D": {"B": 5, "C": 1}
+    </textarea>
+    <input type="submit" value="Submit">
+</form>
+
+## Graph
+<label id="iteration_label" style="font-weight: bold; font-size: large">Iteration 0</label>
+
+<img id="image" src="" alt="Bild">
+
+<script>
+    pseudocode.renderElement(document.getElementById("quicksort"));
+</script>

@@ -1,0 +1,6 @@
+---
+title: About
+author: Maximilian Hoelper
+---
+
+About this site

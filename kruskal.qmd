@@ -1,0 +1,406 @@
+---
+title: "Kruskal"
+author: "Maximilian Hoelper"
+page-layout: full
+toc: true
+---
+## Einleitung
+
+Der Algorithmus von Kruskal ist ein Greedy-Algorithmus der Graphentheorie zur Berechnung minimaler Spannbäume von ungerichteten Graphen.
+Der Kruskal-Algorithmus ist ein Greedy-Algorithmus der Graphentheorie zur Findung eines minimalen Spannbaums in einem **gewichteten, ungerichteten Graphen**. Der Graph muss dazu zusätzlich zusammenhängend, kantengewichtet und endlich sein. Ein minimaler Spannbaum ist ein Teilgraph, der alle Knoten des ursprünglichen Graphen mit der minimal möglichen Gesamtsumme der Kanten gewichte verbindet, ohne Zyklen zu bilden. Der Algorithmus ist nach seinem Erfinder, Joseph Kruskal, benannt. Er findet breite Anwendung in der Optimierung und im Netzwerkdesign, da er effizient eine minimale Verkabelung, Routing und andere Netzwerkstrukturen bestimmen kann.
+
+
+## Zusammenfassende Funktionsweise
+
+**1. Sortierung der Kanten:** Zunächst werden alle Kanten des Graphen nach ihren Gewichten in aufsteigender Reihenfolge sortiert. Diese Sortierung ist der erste Schritt, um sicherzustellen, dass die Kanten mit dem geringsten Gewicht bevorzugt in den Spannbaum aufgenommen werden.
+
+**2. Initialisierung:** Ein Wald wird erstellt, indem jeder Knoten des Graphen als ein separater Baum betrachtet wird. An diesem Punkt besteht der Wald aus so vielen Bäumen, wie es Knoten im Graphen gibt, und der Ziel-Spannbaum ist noch leer.
+
+**3. Auswahl der Kanten:** Die sortierten Kanten werden der Reihe nach durchgegangen. Für jede Kante wird überprüft, ob ihre Aufnahme in den Spannbaum einen Zyklus erzeugen würde. Dies wird typischerweise mit einer Union-Find-Datenstruktur überprüft, die effizient verwalten kann, welche Knoten bereits miteinander verbunden sind.
+
+**4. Aufnahme der Kanten:** Wenn die Aufnahme einer Kante keinen Zyklus im Wald erzeugt, wird sie in den Spannbaum aufgenommen. Dies bedeutet, dass die beiden durch die Kante verbundenen Knoten (und alle Knoten, die bereits mit diesen Knoten verbunden sind) nun zu einem einzigen Baum zusammengefasst werden.
+
+**5. Wiederholung:** Schritte 3 und 4 werden wiederholt, bis alle Kanten geprüft wurden oder bis der Spannbaum (n-1) Kanten enthält, wobei n die Anzahl der Knoten im Graphen ist. Da ein Spannbaum genau (n-1) Kanten haben muss, um alle n Knoten ohne Zyklen zu verbinden, kann der Algorithmus beendet werden, sobald diese Bedingung erfüllt ist.
+
+**6. Ergebnis:** Am Ende liefert der Algorithmus einen minimalen Spannbaum des ursprünglichen Graphen, der alle Knoten mit der minimal möglichen Gesamtsumme der Kanten gewichte verbindet.
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.js"
+        integrity="sha512-EKW5YvKU3hpyyOcN6jQnAxO/L8gts+YdYV6Yymtl8pk9YlYFtqJgihORuRoBXK8/cOIlappdU6Ms8KdK6yBCgA=="
+        crossorigin="anonymous" referrerpolicy="no-referrer">
+</script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pseudocode@2.4.1/build/pseudocode.min.css">
+<script src="https://cdn.jsdelivr.net/npm/pseudocode@2.4.1/build/pseudocode.min.js">
+</script>
+
+## Pseudocode
+
+<pre id="kruskal" class="pseudocode">
+    \begin{algorithm}
+    \caption{Kruskal's Algorithm for Minimum Spanning Tree}
+    \begin{algorithmic}
+    \PROCEDURE{Kruskal}{$G$}
+        \STATE $A = \emptyset$ \COMMENT{A will ultimately contain the edges of the Minimum Spanning Tree}
+        \FOR{each vertex $v \in G.V$}
+            \STATE $\text{MakeSet}(v)$
+        \ENDFOR
+        \STATE Sort the edges of $G.E$ into nondecreasing order by weight $w$
+        \FOR{each edge $(u, v) \in G.E$, taken in nondecreasing order by weight}
+            \IF{$\text{Find}(u) \neq \text{Find}(v)$}
+                \STATE $A = A \cup \{(u, v)\}$
+                \STATE $Set(u) \gets Set(u) \cup Set(v)$
+            \ENDIF
+        \ENDFOR
+        \RETURN $A$
+    \ENDPROCEDURE
+    \end{algorithmic}
+    \end{algorithm}
+</pre>
+
+## Python-Code
+
+```{python}
+class UnionFind:
+    def __init__(self, size):
+        self.parent = list(range(size))
+        self.rank = [0] * size
+
+    def find(self, node):
+        if self.parent[node] != node:
+            self.parent[node] = self.find(self.parent[node])
+        return self.parent[node]
+
+    def union(self, node1, node2):
+        root1 = self.find(node1)
+        root2 = self.find(node2)
+        if root1 != root2:
+            if self.rank[root1] < self.rank[root2]:
+                self.parent[root1] = root2
+            elif self.rank[root1] > self.rank[root2]:
+                self.parent[root2] = root1
+            else:
+                self.parent[root2] = root1
+                self.rank[root1] += 1
+
+def kruskal(graph):
+    # Initialisiere den Union-Find
+    uf = UnionFind(len(graph))
+    # Erstelle eine Liste aller Kanten und sortiere sie nach Gewicht
+    edges = [(weight, u, v) for u, neighbors in graph.items() for v, weight in neighbors.items()]
+    edges.sort()
+    # Initialisiere den Spannbaum
+    mst = []
+    # Gehe die sortierten Kanten durch und wähle die Kanten für den Spannbaum
+    for weight, u, v in edges:
+        if uf.find(u) != uf.find(v):
+            uf.union(u, v)
+            mst.append((u, v, weight))
+    return mst
+```
+
+## Dateneingabe
+
+Erstelle einen Graphen, in vorgegebenem Format. Hierbei ist **A** immer der Startpunkt.
+
+Achte auf die vorgegebene Syntax.
+
+<form id="myForm">
+    <textarea id="dataInput" name="w3review" rows="4" cols="50">
+"A": {"b": 4, "h": 8},
+"b": {"A": 4, "c": 8, "h": 11},
+"c": {"b": 8, "d": 7, "i": 2},
+"d": {"c": 7, "e": 9, "f": 14},
+"e": {"d": 9, "f": 10},
+"f": {"d": 14, "e": 10, "g": 2},
+"g": {"f": 2, "h": 1, "i": 6},
+"h": {"A": 8, "b": 11, "g": 1, "i": 7},
+"i": {"c": 2, "g": 6, "h": 7}
+    </textarea>
+    <input type="submit" value="Submit">
+</form>
+
+## Graph
+<label id="iteration_label" style="font-weight: bold; font-size: large">Iteration 0</label>
+
+<img id="image" src="" alt="Bild">
+
+<script>
+    pseudocode.renderElement(document.getElementById("kruskal"));
+</script>
+
+<button id="nextImage" onclick="changeImage(1)" style="float: right;">Nächste Iteration</button>
+<button id="prevImage" onclick="changeImage(-1)" style="float: right;">Vorherige Iteration</button>
+
+## D-Tabelle
+
+<div id="distancesTable"></div>
+
+: Entfernungen der Knoten von A nach Iteration i
+
+## π-Tabelle
+
+<div id="piTable"></div>
+
+: Vorgänger in dem kürzesten Weg der Knoten nach Iteration i
+
+## Zeitkomplexität
+
+**Theoretische Laufzeit**
+
+O(|E| · log |E|), wobei E der Menge der Kanten enspricht
+
+**Spezifische Laufzeit**
+
+<label id="timeLabel"></label>
+
+## Empfohlenes Erklärungsvideo
+
+{{< video https://www.youtube.com/embed/_lHSawdgXpI?si=yFpmnc-Es3aC805a >}}
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.6.0/jszip.min.js"></script>
+<script>
+    const imgUrls = [];
+    let discoveredNodes = [];
+    let visitedNodes = [];
+    let currentImageIndex = 0;
+    document.addEventListener('DOMContentLoaded', async () => {
+        await fetchAndDisplayImages(); // Rufen Sie dies beim Laden der Seite auf, um das erste Bild zu laden
+        if (imgUrls && imgUrls.length > 0) {
+            document.getElementById('image').src = imgUrls[0]; // Set the src of the image to the first URL
+        }
+        await fetchAndDisplayDistances();
+        await fetchAndDisplayPi();
+        await fetchAndDisplayTime();
+        visitedNodes = await fetchAndDisplayVisitedNodes();
+        discoveredNodes = await fetchAndDisplayDiscoveredNodes();
+        document.getElementById("visitedNodesLabel").innerHTML = "Besuchte Knoten: " + (visitedNodes[currentImageIndex]);
+        document.getElementById("discoveredNodesLabel").innerHTML = "Entdeckte Knoten: " + (discoveredNodes[currentImageIndex]);
+    });
+
+    document.getElementById('myForm').addEventListener('submit', async function(event) {
+        event.preventDefault(); // Verhindert das Standardverhalten des Formulars
+
+        imgUrls.length = 0;
+        await fetchAndDisplayImages(); // Rufen Sie dies beim Laden der Seite auf, um das erste Bild zu laden
+        if (imgUrls && imgUrls.length > 0) {
+            document.getElementById('image').src = imgUrls[0]; // Set the src of the image to the first URL
+        }
+        await fetchAndDisplayDistances();
+        await fetchAndDisplayPi();
+        await fetchAndDisplayTime();
+        visitedNodes = await fetchAndDisplayVisitedNodes();
+        discoveredNodes = await fetchAndDisplayDiscoveredNodes();
+        document.getElementById("visitedNodesLabel").innerHTML = "Besuchte Knoten: " + (visitedNodes[currentImageIndex]);
+        document.getElementById("discoveredNodesLabel").innerHTML = "Entdeckte Knoten: " + (discoveredNodes[currentImageIndex]);
+    });
+
+    async function fetchAndDisplayImages() {
+        const dataInputValue = "{ " + document.getElementById('dataInput').value + " }";
+
+        // URL des Flask-Servers
+        const url = 'http://127.0.0.1:5000/dijkstra/get-image';
+
+        // Hinzufügen der Daten zum URL-Query-String
+        const fullUrl = `${url}?dataInput=${encodeURIComponent(dataInputValue)}`;
+
+        try {
+            const response = await fetch(fullUrl, {
+                cache: 'no-store' // Cache ignorieren und Ressource neu laden
+            });
+
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+
+            const blob = await response.blob(); // Erhalt des Bildes als Blob
+            const zip = await JSZip.loadAsync(blob); // Read the Blob as a ZIP file
+
+            const promises = [];
+
+            Object.keys(zip.files).forEach(filename => {
+                const filePromise = zip.files[filename].async('blob').then(blob => {
+                    const imageUrl = URL.createObjectURL(blob);
+                    imgUrls.push(imageUrl);
+                });
+                promises.push(filePromise);
+            });
+
+            // Wait for all images to be processed
+            await Promise.all(promises);
+
+            // Here, imgUrls is fully populated and you can use it as needed
+            // For example, displaying all images:
+            return imgUrls
+        } catch (error) {
+            console.error('Fehler beim Senden der Anfrage:', error);
+            window.alert("Syntax korrigieren");
+        }
+    }
+
+    async function fetchAndDisplayDistances() {
+        const dataInputValue = "{ " + document.getElementById('dataInput').value + " }";
+
+        // URL of the Flask server
+        const url = 'http://127.0.0.1:5000/dijkstra/get-distances';
+
+        // Adding the data to the URL query string
+        const fullUrl = `${url}?dataInput=${encodeURIComponent(dataInputValue)}`;
+
+        try {
+            const response = await fetch(fullUrl);
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            const data = await response.text();
+            // Parses the JSON response into a JavaScript object
+            const data1 = data.replaceAll('Infinity', '"Infinity"')
+            let distances = JSON.parse(data1, (key, value) => {
+                return value === "Infinity" ? Infinity : value;
+            });
+
+            var table = '<table style="width:100%; border-collapse: collapse;">';
+            table += '<tr><th>Iteration</th><th>A</th><th>B</th><th>C</th><th>D</th></tr>'; // Adding headers
+
+            Object.keys(distances).forEach(function(row) {
+                table += `<tr><td>${row}</td>`;
+                table += `<td>${distances[row].A}</td>`;
+                table += `<td>${distances[row].B === Infinity ? '∞' : distances[row].B}</td>`; // Handle Infinity
+                table += `<td>${distances[row].C === Infinity ? '∞' : distances[row].C}</td>`;
+                table += `<td>${distances[row].D === Infinity ? '∞' : distances[row].D}</td>`;
+                table += '</tr>';
+            });
+
+            table += '</table>';
+
+            // Append the table to the body or a specific element
+            document.getElementById("distancesTable").innerHTML += table;
+        } catch (error) {
+            console.error('There has been a problem with your fetch operation:', error);
+        }
+    }
+    async function fetchAndDisplayPi() {
+        const dataInputValue = "{ " + document.getElementById('dataInput').value + " }";
+
+        // URL of the Flask server
+        const url = 'http://127.0.0.1:5000/dijkstra/get-pi';
+
+        // Adding the data to the URL query string
+        const fullUrl = `${url}?dataInput=${encodeURIComponent(dataInputValue)}`;
+
+        try {
+            const response = await fetch(fullUrl);
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            const data = await response.text();
+            // Parses the JSON response into a JavaScript object
+            const data1 = data.replaceAll('Infinity', '"Infinity"')
+            let distances = JSON.parse(data1, (key, value) => {
+                return value === "Infinity" ? Infinity : value;
+            });
+
+            var table = '<table style="width:100%; border-collapse: collapse;">';
+            table += '<tr><th>Iteration</th><th>A</th><th>B</th><th>C</th><th>D</th></tr>'; // Adding headers
+
+            Object.keys(distances).forEach(function(row) {
+                table += `<tr><td>${row}</td>`;
+                table += `<td>${distances[row].A}</td>`;
+                table += `<td>${distances[row].B === Infinity ? '∞' : distances[row].B}</td>`; // Handle Infinity
+                table += `<td>${distances[row].C === Infinity ? '∞' : distances[row].C}</td>`;
+                table += `<td>${distances[row].D === Infinity ? '∞' : distances[row].D}</td>`;
+                table += '</tr>';
+            });
+
+            table += '</table>';
+
+            // Append the table to the body or a specific element
+            document.getElementById("piTable").innerHTML += table;
+        } catch (error) {
+            console.error('There has been a problem with your fetch operation:', error);
+        }
+    }
+
+    async function fetchAndDisplayTime() {
+        const dataInputValue = "{ " + document.getElementById('dataInput').value + " }";
+
+        // URL of the Flask server
+        const url = 'http://127.0.0.1:5000/dijkstra/get-time';
+
+        // Adding the data to the URL query string
+        const fullUrl = `${url}?dataInput=${encodeURIComponent(dataInputValue)}`;
+
+        try {
+            const response = await fetch(fullUrl);
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            const data = await response.text();
+            console.log(data);
+
+            document.getElementById("timeLabel").innerHTML += "Die tatsächliche Ausführungszeit dieses Prozesses beträgt " + data + " Sekunden.";
+        } catch (error) {
+            console.error('There has been a problem with your fetch operation:', error);
+        }
+    }
+    async function fetchAndDisplayVisitedNodes() {
+        const dataInputValue = "{ " + document.getElementById('dataInput').value + " }";
+
+        // URL of the Flask server
+        const url = 'http://127.0.0.1:5000/dijkstra/get-visitedNodes';
+
+        // Adding the data to the URL query string
+        const fullUrl = `${url}?dataInput=${encodeURIComponent(dataInputValue)}`;
+
+        try {
+            const response = await fetch(fullUrl);
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            const data = await response.text();
+            // Parses the JSON response into a JavaScript object
+            let data1 = JSON.parse(data, (key, value) => {
+                return value;
+            });
+
+            return data1;
+        } catch (error) {
+            console.error('There has been a problem with your fetch operation:', error);
+        }
+    }
+
+    async function fetchAndDisplayDiscoveredNodes() {
+        const dataInputValue = "{ " + document.getElementById('dataInput').value + " }";
+
+        // URL of the Flask server
+        const url = 'http://127.0.0.1:5000/dijkstra/get-visitedNodes';
+
+        // Adding the data to the URL query string
+        const fullUrl = `${url}?dataInput=${encodeURIComponent(dataInputValue)}`;
+
+        try {
+            const response = await fetch(fullUrl);
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            const data = await response.text();
+            // Parses the JSON response into a JavaScript object
+            let data1 = JSON.parse(data, (key, value) => {
+                return value;
+            });
+
+            return data1;
+        } catch (error) {
+            console.error('There has been a problem with your fetch operation:', error);
+        }
+    }
+
+    function changeImage(direction) {
+        if (direction === 1 && currentImageIndex < imgUrls.length - 1) {
+            currentImageIndex++;
+        } else if (direction === -1 && currentImageIndex > 0) {
+            currentImageIndex--;
+        }
+        document.getElementById("iteration_label").textContent = "Iteration " + currentImageIndex;
+        document.getElementById('image').src = imgUrls[currentImageIndex]; // Aktualisiert die Bildquelle basierend auf dem Index
+        document.getElementById("visitedNodesLabel").innerHTML = "Besuchte Knoten: " + (visitedNodes[currentImageIndex]);
+    }
+</script>

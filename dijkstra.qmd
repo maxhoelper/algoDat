@@ -1,0 +1,406 @@
+---
+title: "Dijkstra"
+author: "Maximilian Hoelper"
+page-layout: full
+toc: true
+
+
+---
+
+## Einleitung
+
+Der Algorithmus von Dijkstra ist ein Algorithmus aus der Klasse der Greedy-Algorithmen und löst das Problem der kürzesten Pfade für einen gegebenen Startknoten. Er berechnet somit einen kürzesten Pfad zwischen dem gegebenen Startknoten und einem der (oder allen) übrigen Knoten in einem kantengewichteten Graphen (sofern dieser keine Negativkanten enthält).
+
+Für unzusammenhängende ungerichtete Graphen ist der Abstand zu denjenigen Knoten unendlich, zu denen kein Pfad vom Startknoten aus existiert. Dasselbe gilt auch für gerichtete nicht stark zusammenhängende Graphen. Dabei wird der Abstand synonym auch als Entfernung, Kosten oder Gewicht bezeichnet.
+
+Quelle: <https://de.wikipedia.org/wiki/Dijkstra-Algorithmus>
+
+## Zusammenfassende Funktionsweise
+
+**1. Initialisierung:** Zunächst werden alle Distanzen zu den Knoten auf unendlich gesetzt, außer zum Startknoten, dessen Distanz auf 0 gesetzt wird. Dies spiegelt wider, dass die Distanz vom Startknoten zu sich selbst null ist und dass anfänglich keine Informationen über die Distanzen zu anderen Knoten vorhanden sind.
+
+**2. Besuch von Knoten:** Der Algorithmus hält eine Menge von "unbesuchten" Knoten vor, die zu Beginn alle Knoten außer dem Startknoten umfasst. Der Prozess beginnt beim Startknoten.
+
+**3. Distanzaktualisierung:** Für jeden unbesuchten Nachbarknoten des aktuell betrachteten Knotens wird überprüft, ob der Weg über den aktuellen Knoten zu einer kürzeren Distanz führt als bisher bekannt. Wenn ja, wird die Distanz dieses Nachbarknotens aktualisiert.
+
+**4. Auswahl des nächsten Knotens:** Nachdem alle Nachbarn des aktuellen Knotens betrachtet wurden, wird der Knoten mit der geringsten Distanz zum Startknoten aus der Menge der unbesuchten Knoten als nächster "aktueller Knoten" ausgewählt und als besucht markiert.
+
+**5. Wiederholung:** Schritte 3 und 4 werden wiederholt, bis alle Knoten besucht wurden oder festgestellt wird, dass der Zielknoten (falls spezifiziert) erreicht ist. Der Algorithmus kann auch vorzeitig beendet werden, wenn der kleinste Distanzwert unter den unbesuchten Knoten unendlich ist, was bedeutet, dass einige Knoten vom Startknoten aus unerreichbar sind.
+
+**6. Ergebnis:** Am Ende liefert der Algorithmus die kürzesten Distanzen von dem Startknoten zu allen anderen Knoten im Graphen sowie möglicherweise die tatsächlichen Pfade, falls die Vorgänger jedes Knotens auf dem Weg ebenfalls gespeichert wurden.
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.js"
+        integrity="sha512-EKW5YvKU3hpyyOcN6jQnAxO/L8gts+YdYV6Yymtl8pk9YlYFtqJgihORuRoBXK8/cOIlappdU6Ms8KdK6yBCgA=="
+        crossorigin="anonymous" referrerpolicy="no-referrer">
+</script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pseudocode@2.4.1/build/pseudocode.min.css">
+<script src="https://cdn.jsdelivr.net/npm/pseudocode@2.4.1/build/pseudocode.min.js">
+</script>
+
+## Pseudocode
+
+<pre id="pseudo" class="pseudocode">
+    \begin{algorithm}
+\caption{Dijkstra's Algorithm}
+\begin{algorithmic}
+\STATE \textbf{Input:} Graph $G$ with vertices $V$, source vertex $s$
+\STATE \textbf{Output:} Shortest distance from $s$ to all other vertices
+
+\STATE Initialize $dist[v] = \infty$ for all $v \in V$ except $dist[s] = 0$
+\STATE Initialize $Q = V$ \COMMENT{$Q$ is the set of all nodes in the graph}
+
+\WHILE{$Q$ is not empty}
+    \STATE $u = $ vertex in $Q$ with min $dist[u]$
+    \STATE Remove $u$ from $Q$
+
+    \FOR{each neighbor $v$ of $u$}
+        \STATE $alt = dist[u] + \text{length}(u, v)$
+        \IF{$alt < dist[v]$}
+            \STATE $dist[v] = alt$
+        \ENDIF
+    \ENDFOR
+\ENDWHILE
+\end{algorithmic}
+\end{algorithm}
+
+</pre>
+
+## Python-Code
+
+```{python}
+import heapq
+
+def dijkstra(graph, start):
+
+    queue = []
+    heapq.heappush(queue, (0, start))
+
+    distances = {node: float('infinity') for node in graph}
+    distances[start] = 0
+
+    while queue:
+        current_distance, current_node = heapq.heappop(queue)
+
+        if current_distance > distances[current_node]:
+            continue
+
+        for neighbor, weight in graph[current_node].items():
+
+            distance = current_distance + weight
+
+            if distance < distances[neighbor]:
+                distances[neighbor] = distance
+            if neighbor not in visited_nodes:
+                heapq.heappush(queue, (distance, neighbor))
+
+    return distances
+
+```
+
+## Dateneingabe
+
+Erstelle einen Graphen, in vorgegebenem Format. Hierbei ist **A** immer der Startpunkt.
+
+Achte auf die vorgegebene Syntax.
+
+<form id="myForm">
+    <textarea id="dataInput" name="w3review" rows="4" cols="50">
+"A": {"B": 1, "C": 4},
+"B": {"C": 2, "D": 5},
+"C": {"D": 1},
+"D": {"B": 5, "C": 1}
+    </textarea>
+    <input type="submit" value="Submit">
+</form>
+
+## Graph
+<label id="iteration_label" style="font-weight: bold; font-size: large">Iteration 0</label>
+
+<img id="image" src="" alt="Bild">
+
+<label id="discoveredNodesLabel">discoveredNodes = </label>
+
+<label id="visitedNodesLabel">visitedNodes = </label>
+
+<button id="nextImage" onclick="changeImage(1)" style="float: right;">Nächste Iteration</button>
+<button id="prevImage" onclick="changeImage(-1)" style="float: right;">Vorherige Iteration</button>
+
+
+## D-Tabelle
+
+<div id="distancesTable"></div>
+
+: Entfernungen der Knoten von A nach Iteration i
+
+## π-Tabelle
+
+<div id="piTable"></div>
+
+: Vorgänger in dem kürzesten Weg der Knoten nach Iteration i
+
+## Zeitkomplexität
+
+**Theoretische Laufzeit**
+
+O( (|E| + |V|) · log |V| ), wobei E der Menge der Kanten und V der Menge der Knoten enspricht
+
+**Spezifische Laufzeit**
+
+<label id="timeLabel"></label>
+
+## Empfohlenes Erklärungsvideo
+
+{{< video https://www.youtube.com/embed/_lHSawdgXpI?si=yFpmnc-Es3aC805a >}}
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.6.0/jszip.min.js"></script>
+<script>
+    const imgUrls = [];
+    let discoveredNodes = [];
+    let visitedNodes = [];
+    let currentImageIndex = 0;
+    document.addEventListener('DOMContentLoaded', async () => {
+        await fetchAndDisplayImages(); // Rufen Sie dies beim Laden der Seite auf, um das erste Bild zu laden
+        if (imgUrls && imgUrls.length > 0) {
+            document.getElementById('image').src = imgUrls[0]; // Set the src of the image to the first URL
+        }
+        await fetchAndDisplayDistances();
+        await fetchAndDisplayPi();
+        await fetchAndDisplayTime();
+        visitedNodes = await fetchAndDisplayVisitedNodes();
+        discoveredNodes = await fetchAndDisplayDiscoveredNodes();
+        document.getElementById("visitedNodesLabel").innerHTML = "Besuchte Knoten: " + (visitedNodes[currentImageIndex]);
+        document.getElementById("discoveredNodesLabel").innerHTML = "Entdeckte Knoten: " + (discoveredNodes[currentImageIndex]);
+    });
+
+    document.getElementById('myForm').addEventListener('submit', async function(event) {
+        event.preventDefault(); // Verhindert das Standardverhalten des Formulars
+
+        imgUrls.length = 0;
+        await fetchAndDisplayImages(); // Rufen Sie dies beim Laden der Seite auf, um das erste Bild zu laden
+        if (imgUrls && imgUrls.length > 0) {
+            document.getElementById('image').src = imgUrls[0]; // Set the src of the image to the first URL
+        }
+        await fetchAndDisplayDistances();
+        await fetchAndDisplayPi();
+        await fetchAndDisplayTime();
+        visitedNodes = await fetchAndDisplayVisitedNodes();
+        discoveredNodes = await fetchAndDisplayDiscoveredNodes();
+        document.getElementById("visitedNodesLabel").innerHTML = "Besuchte Knoten: " + (visitedNodes[currentImageIndex]);
+        document.getElementById("discoveredNodesLabel").innerHTML = "Entdeckte Knoten: " + (discoveredNodes[currentImageIndex]);
+    });
+
+    async function fetchAndDisplayImages() {
+        const dataInputValue = "{ " + document.getElementById('dataInput').value + " }";
+
+        // URL des Flask-Servers
+        const url = 'http://127.0.0.1:5000/dijkstra/get-image';
+
+        // Hinzufügen der Daten zum URL-Query-String
+        const fullUrl = `${url}?dataInput=${encodeURIComponent(dataInputValue)}`;
+
+        try {
+            const response = await fetch(fullUrl, {
+                cache: 'no-store' // Cache ignorieren und Ressource neu laden
+            });
+
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+
+            const blob = await response.blob(); // Erhalt des Bildes als Blob
+            const zip = await JSZip.loadAsync(blob); // Read the Blob as a ZIP file
+
+            const promises = [];
+
+            Object.keys(zip.files).forEach(filename => {
+                const filePromise = zip.files[filename].async('blob').then(blob => {
+                    const imageUrl = URL.createObjectURL(blob);
+                    imgUrls.push(imageUrl);
+                });
+                promises.push(filePromise);
+            });
+
+            // Wait for all images to be processed
+            await Promise.all(promises);
+
+            // Here, imgUrls is fully populated and you can use it as needed
+            // For example, displaying all images:
+            return imgUrls
+        } catch (error) {
+            console.error('Fehler beim Senden der Anfrage:', error);
+            window.alert("Syntax korrigieren");
+        }
+    }
+
+    async function fetchAndDisplayDistances() {
+        const dataInputValue = "{ " + document.getElementById('dataInput').value + " }";
+
+        // URL of the Flask server
+        const url = 'http://127.0.0.1:5000/dijkstra/get-distances';
+
+        // Adding the data to the URL query string
+        const fullUrl = `${url}?dataInput=${encodeURIComponent(dataInputValue)}`;
+
+        try {
+            const response = await fetch(fullUrl);
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            const data = await response.text();
+            // Parses the JSON response into a JavaScript object
+            const data1 = data.replaceAll('Infinity', '"Infinity"')
+            let distances = JSON.parse(data1, (key, value) => {
+                return value === "Infinity" ? Infinity : value;
+            });
+
+            var table = '<table style="width:100%; border-collapse: collapse;">';
+            table += '<tr><th>Iteration</th><th>A</th><th>B</th><th>C</th><th>D</th></tr>'; // Adding headers
+
+            Object.keys(distances).forEach(function(row) {
+                table += `<tr><td>${row}</td>`;
+                table += `<td>${distances[row].A}</td>`;
+                table += `<td>${distances[row].B === Infinity ? '∞' : distances[row].B}</td>`; // Handle Infinity
+                table += `<td>${distances[row].C === Infinity ? '∞' : distances[row].C}</td>`;
+                table += `<td>${distances[row].D === Infinity ? '∞' : distances[row].D}</td>`;
+                table += '</tr>';
+            });
+
+            table += '</table>';
+
+            // Append the table to the body or a specific element
+            document.getElementById("distancesTable").innerHTML += table;
+        } catch (error) {
+            console.error('There has been a problem with your fetch operation:', error);
+        }
+    }
+    async function fetchAndDisplayPi() {
+        const dataInputValue = "{ " + document.getElementById('dataInput').value + " }";
+
+        // URL of the Flask server
+        const url = 'http://127.0.0.1:5000/dijkstra/get-pi';
+
+        // Adding the data to the URL query string
+        const fullUrl = `${url}?dataInput=${encodeURIComponent(dataInputValue)}`;
+
+        try {
+            const response = await fetch(fullUrl);
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            const data = await response.text();
+            // Parses the JSON response into a JavaScript object
+            const data1 = data.replaceAll('Infinity', '"Infinity"')
+            let distances = JSON.parse(data1, (key, value) => {
+                return value === "Infinity" ? Infinity : value;
+            });
+
+            var table = '<table style="width:100%; border-collapse: collapse;">';
+            table += '<tr><th>Iteration</th><th>A</th><th>B</th><th>C</th><th>D</th></tr>'; // Adding headers
+
+            Object.keys(distances).forEach(function(row) {
+                table += `<tr><td>${row}</td>`;
+                table += `<td>${distances[row].A}</td>`;
+                table += `<td>${distances[row].B === Infinity ? '∞' : distances[row].B}</td>`; // Handle Infinity
+                table += `<td>${distances[row].C === Infinity ? '∞' : distances[row].C}</td>`;
+                table += `<td>${distances[row].D === Infinity ? '∞' : distances[row].D}</td>`;
+                table += '</tr>';
+            });
+
+            table += '</table>';
+
+            // Append the table to the body or a specific element
+            document.getElementById("piTable").innerHTML += table;
+        } catch (error) {
+            console.error('There has been a problem with your fetch operation:', error);
+        }
+    }
+
+    async function fetchAndDisplayTime() {
+        const dataInputValue = "{ " + document.getElementById('dataInput').value + " }";
+
+        // URL of the Flask server
+        const url = 'http://127.0.0.1:5000/dijkstra/get-time';
+
+        // Adding the data to the URL query string
+        const fullUrl = `${url}?dataInput=${encodeURIComponent(dataInputValue)}`;
+
+        try {
+            const response = await fetch(fullUrl);
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            const data = await response.text();
+            console.log(data);
+
+            document.getElementById("timeLabel").innerHTML += "Die tatsächliche Ausführungszeit dieses Prozesses beträgt " + data + " Sekunden.";
+        } catch (error) {
+            console.error('There has been a problem with your fetch operation:', error);
+        }
+    }
+    async function fetchAndDisplayVisitedNodes() {
+        const dataInputValue = "{ " + document.getElementById('dataInput').value + " }";
+
+        // URL of the Flask server
+        const url = 'http://127.0.0.1:5000/dijkstra/get-visitedNodes';
+
+        // Adding the data to the URL query string
+        const fullUrl = `${url}?dataInput=${encodeURIComponent(dataInputValue)}`;
+
+        try {
+            const response = await fetch(fullUrl);
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            const data = await response.text();
+            // Parses the JSON response into a JavaScript object
+            let data1 = JSON.parse(data, (key, value) => {
+                return value;
+            });
+
+            return data1;
+        } catch (error) {
+            console.error('There has been a problem with your fetch operation:', error);
+        }
+    }
+
+    async function fetchAndDisplayDiscoveredNodes() {
+        const dataInputValue = "{ " + document.getElementById('dataInput').value + " }";
+
+        // URL of the Flask server
+        const url = 'http://127.0.0.1:5000/dijkstra/get-visitedNodes';
+
+        // Adding the data to the URL query string
+        const fullUrl = `${url}?dataInput=${encodeURIComponent(dataInputValue)}`;
+
+        try {
+            const response = await fetch(fullUrl);
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            const data = await response.text();
+            // Parses the JSON response into a JavaScript object
+            let data1 = JSON.parse(data, (key, value) => {
+                return value;
+            });
+
+            return data1;
+        } catch (error) {
+            console.error('There has been a problem with your fetch operation:', error);
+        }
+    }
+
+    function changeImage(direction) {
+        if (direction === 1 && currentImageIndex < imgUrls.length - 1) {
+            currentImageIndex++;
+        } else if (direction === -1 && currentImageIndex > 0) {
+            currentImageIndex--;
+        }
+        document.getElementById("iteration_label").textContent = "Iteration " + currentImageIndex;
+        document.getElementById('image').src = imgUrls[currentImageIndex]; // Aktualisiert die Bildquelle basierend auf dem Index
+        document.getElementById("visitedNodesLabel").innerHTML = "Besuchte Knoten: " + (visitedNodes[currentImageIndex]);
+    }
+</script>
+
+<script>
+    pseudocode.renderElement(document.getElementById("pseudo"));
+</script>
