@@ -1,0 +1,10 @@
+{
+  "name": "algodat",
+  "private": true,
+  "type": "module",
+  "description": "Interaktive Visualisierung der Algorithmen aus Algorithmen und Datenstrukturen – mit CLRS-Pseudocode und Klausur-Tabellen.",
+  "scripts": {
+    "test": "node --test",
+    "start": "python3 -m http.server 8000"
+  }
+}
